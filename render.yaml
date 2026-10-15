@@ -1,0 +1,36 @@
+# Render Blueprint Specification for Helix Guard
+# https://render.com/docs/blueprint-spec
+
+services:
+  # -------------------------------------------------------------
+  # 1. Backend FastAPI Service
+  # -------------------------------------------------------------
+  - type: web
+    name: helix-guard-backend
+    runtime: python
+    region: oregon
+    plan: free
+    buildCommand: "pip install --upgrade pip && pip install -r backend/requirements.txt"
+    startCommand: "uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: PORT
+        value: 10000
+
+  # -------------------------------------------------------------
+  # 2. Optional: Frontend Static Site on Render
+  # (If you prefer running both Frontend & Backend on Render)
+  # -------------------------------------------------------------
+  - type: static
+    name: helix-guard-frontend
+    buildCommand: "cd frontend && npm install && npm run build"
+    staticPublishPath: "./frontend/dist"
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: NODE_VERSION
+        value: 20

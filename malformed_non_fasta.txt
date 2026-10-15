@@ -1,0 +1,2 @@
+This is a plain text file without FASTA formatting headers.
+Line 2 contains random text.
