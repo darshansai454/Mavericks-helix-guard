@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -34,18 +35,30 @@ app.add_middleware(
 # Mount API endpoints
 app.include_router(api_router, prefix="/api")
 
-@app.get("/")
-def root():
-    return {
-        "system": "Helix Guard",
-        "version": "2.4.0",
-        "status": "OPERATIONAL",
-        "documentation": "/docs",
-        "disclaimer": (
-            "Helix Guard is a research prototype for antimicrobial resistance prediction. "
-            "Its predictions are not clinical recommendations."
-        )
-    }
+# Check for pre-built frontend distribution
+candidates_dist = [
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist")),
+    os.path.abspath(os.path.join(os.getcwd(), "frontend", "dist")),
+    os.path.abspath(os.path.join(os.getcwd(), "dist")),
+]
+frontend_dist = next((d for d in candidates_dist if os.path.exists(os.path.join(d, "index.html"))), None)
+
+if frontend_dist:
+    from fastapi.staticfiles import StaticFiles
+    app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="frontend")
+else:
+    @app.get("/")
+    def root():
+        return {
+            "system": "Helix Guard",
+            "version": "2.4.0",
+            "status": "OPERATIONAL",
+            "documentation": "/docs",
+            "disclaimer": (
+                "Helix Guard is a research prototype for antimicrobial resistance prediction. "
+                "Its predictions are not clinical recommendations."
+            )
+        }
 
 if __name__ == "__main__":
     import uvicorn
