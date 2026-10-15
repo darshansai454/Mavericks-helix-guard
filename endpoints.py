@@ -35,9 +35,11 @@ router = APIRouter()
 
 def get_sample_genome_path(sample_id: str) -> Optional[str]:
     candidates = [
-        os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "sample_data", "genomes")),
         os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "sample_data", "genomes")),
-        os.path.abspath(os.path.join(os.getcwd(), "sample_data", "genomes"))
+        os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "sample_data", "genomes")),
+        os.path.abspath(os.path.join(os.getcwd(), "backend", "sample_data", "genomes")),
+        os.path.abspath(os.path.join(os.getcwd(), "sample_data", "genomes")),
+        os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "sample_data", "genomes"))
     ]
     for d in candidates:
         p = os.path.join(d, f"{sample_id}.fasta")
